@@ -30,10 +30,11 @@ const styles = StyleSheet.create({
 const AppBar = () => {
 
   const { data, error, loading } = useQuery(IS_AUTHORIZED, { fetchPolicy: 'cache-and-network' });
-  const [ isAuthorized, setIsAuthorized ] = useState(false)
+  //const [ isAuthorized, setIsAuthorized ] = useState(false)
   
   if (!loading && data.authorizedUser) {
-    setIsAuthorized(true);
+    //setIsAuthorized(true);
+
   }
 
   const signOut = useSignOut();
@@ -52,7 +53,7 @@ const AppBar = () => {
       <View style={styles.item}>
         <Link to='/signin'>
           {
-            isAuthorized 
+            data?.authorizedUser 
             ?
             <AppBarTab text={"sign out"} fontWeight={'bold'} color='textWhite' onPress={() => signOut()}/>
             :
