@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import Constants from 'expo-constants';
 import { Link } from 'react-router-native';
+import { useQuery } from '@apollo/client';
 
 import AppBarTab from './AppBarTab';
 import theme from '../theme';
+import { IS_AUTHORIZED  } from '../graphQl/queries';
+import useSignOut from '../hooks/useSignOut'
 
 const styles = StyleSheet.create({
   container: {
@@ -26,6 +29,15 @@ const styles = StyleSheet.create({
 
 const AppBar = () => {
 
+  const { data, error, loading } = useQuery(IS_AUTHORIZED, { fetchPolicy: 'cache-and-network' });
+  const [ isAuthorized, setIsAuthorized ] = useState(false)
+  
+  if (!loading && data.authorizedUser) {
+    setIsAuthorized(true);
+  }
+
+  const signOut = useSignOut();
+  console.log(data)
   return (
   <View style={styles.container}>
     <ScrollView horizontal>
@@ -39,7 +51,13 @@ const AppBar = () => {
       <Pressable>
       <View style={styles.item}>
         <Link to='/signin'>
-          <AppBarTab text={"sign in"} fontWeight={'bold'} color='textWhite'/>
+          {
+            isAuthorized 
+            ?
+            <AppBarTab text={"sign out"} fontWeight={'bold'} color='textWhite' onPress={() => signOut()}/>
+            :
+            <AppBarTab text={"sign in"} fontWeight={'bold'} color='textWhite'/>
+          }
         </Link>
       </View>
       </Pressable>

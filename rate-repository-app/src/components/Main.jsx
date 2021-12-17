@@ -19,7 +19,7 @@ const Main = () => {
       <AppBar/>
       <Switch>
         <Route path="/signin" exact>
-          <SignIn />
+          <SignIn/>
         </Route>
         <Route path="/" exact>
           <RepositoryList />

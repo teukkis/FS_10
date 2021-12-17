@@ -6,23 +6,54 @@ export const GET_REPOSITORIES = gql`
   query {
     repositories{
       totalCount
-    edges {
-      cursor
-      node {
-        id
-        ownerName
-        name
-        createdAt
-        fullName
-        ratingAverage
-        reviewCount
-        stargazersCount
-        forksCount
-        ownerAvatarUrl
-        description
-        language
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+        }
+        edges {
+          cursor  
+          node {
+            id
+            ownerName
+            name
+            createdAt
+            fullName
+            ratingAverage
+            reviewCount
+            stargazersCount
+            watchersCount
+            forksCount
+            openIssuesCount
+            url
+            ownerAvatarUrl
+            description
+            authorizedUserHasReviewed
+            language
+          }
+        }
+    }
+  }
+`;
+
+export const GET_USERS = gql`
+  query {
+    users {
+      edges {
+        node {
+          username
+        }
       }
     }
+  }
+`;
+
+export const IS_AUTHORIZED = gql`
+  query {
+    authorizedUser {
+      id
+      username
     }
   }
 `;

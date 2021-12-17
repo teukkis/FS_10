@@ -17,10 +17,10 @@ const ItemSeparator = () => <View style={styles.separator} />;
 const RepositoryList = () => {
 
  const repositoryNodes  = useRepositories();
-
   return (
+
     <FlatList
-      data={repositoryNodes}
+      data={repositoryNodes === 'loading' ? [] : repositoryNodes}
       ItemSeparatorComponent={ItemSeparator}
       renderItem={({item}) => <RepositoryItem item={item}/>  }
       contentContainerStyle={{ paddingBottom: 20 }}
