@@ -1,27 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import Text from '../components/Text';
-
-
 import { GET_REPOSITORIES  } from '../graphQl/queries';
 
-const useRepositories = () => {
-  const { data, error, loading } = useQuery(GET_REPOSITORIES, { fetchPolicy: 'cache-and-network' });
+const useRepositories = (variables) => {
+  const { data, error, loading, fetchMore, ...result } = useQuery(GET_REPOSITORIES, { fetchPolicy: 'cache-and-network', variables });
 
-  if (loading)  {
-    return 'loading'
-  }
+  const handleFetchMore = () => {
+    
+    const canFetchMore = !loading && data && data.repositories.pageInfo.hasNextPage;
 
+    if (!canFetchMore) return;
 
-  // Get the nodes from the edges array
-  const repositoryNodes = data
-    ? data?.repositories.edges.map(edge => {
-      return edge.node;
-    })
-    : [];
+    fetchMore({
+      query: GET_REPOSITORIES,
+      variables: {
+        after: data.repositories.pageInfo.endCursor,
+        ...variables,
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => {
+         return {
+          repositories: {
+            ...fetchMoreResult.repositories,
+            edges: [
+              ...previousResult.repositories.edges,
+              ...fetchMoreResult.repositories.edges,
+            ],
+          },
+        };
+      },
+    });
+  };
 
+  if (!loading) {
+    // Get the nodes from the edges array
+    return {
+      repositories: data ? data.repositories : [],
+      fetchMore: handleFetchMore,
+      loading,
+      ...result,
+    };
 
-  return repositoryNodes;
+  } else {
+    return "loading"
+  }  
 };
 
 export default useRepositories;

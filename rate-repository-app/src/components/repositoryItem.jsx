@@ -1,15 +1,18 @@
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet, Pressable, Button } from 'react-native';
+import { useHistory } from 'react-router-native';
+import * as Linking from 'expo-linking';
 
 import { formProperNumber } from '../helpers/validation';
 import theme from '../theme';
 import Text from './Text';
 
 
+
 const styles = StyleSheet.create({
   rootContainer: {
     display: 'flex',
-    height: 180,
+    minHeight: 300,
     flexDirection: 'column',
     backgroundColor: '#ffffff',
     padding: 20
@@ -18,7 +21,7 @@ const styles = StyleSheet.create({
   upperContainer: {
     display: 'flex',
     flexDirection: 'row',
-    height: 90,
+    minHeight: 120,
     margin: 20
 
   },
@@ -55,62 +58,92 @@ const styles = StyleSheet.create({
   },
   description: {
     marginBottom: 10
+  },
+  githubButton: {
+    height: 50
   }
 });
 
-const RepositoryItem = ({ item }) => {
+const RepositoryItem = ({ item, showButton }) => {
 
+  if (item.node) {
+    item = item.node
+  }
+
+  const history = useHistory();
+
+  const handleOpenRepository = (id) => {
+    history.push(`/repositories/${id}`);
+  };
+
+  const handleOpenGithub = async (url) => {
+    await Linking.openURL(url);
+  };
 
   return (
-    <View style={styles.rootContainer}>
-      
-      <View style={styles.upperContainer}>
+      <View key={item.description} style={styles.rootContainer}>
+      <Pressable onPress={() => handleOpenRepository(item.id)}>
+        <View style={styles.upperContainer}>
 
-        <View style={styles.imageContainer}>
-          <Image
-            style={styles.image}
-            source={{ uri: item.ownerAvatarUrl }}
-          />
+          <View style={styles.imageContainer}>
+            <Image
+              style={styles.image}
+              source={{ uri: item.ownerAvatarUrl }}
+            />
+          </View>
+
+          <View style={styles.infoContainer}>
+            <View style={styles.fullName}>
+              <Text testID="fullName" fontWeight='bold' fontSize='subheading'>{item.fullName}</Text>
+            </View>
+
+            <View style={styles.description}>
+              <Text testID="description" fontSize='body' >{item.description}</Text>
+            </View>
+
+            <View style={styles.languageTag}>
+              <Text testID="language" fontSize='body' color='textWhite'>{item.language}</Text>
+            </View>
+          </View>
+
         </View>
 
-        <View style={styles.infoContainer}>
-          <View style={styles.fullName}>
-            <Text fontWeight='bold' fontSize='subheading'>{item.fullName}</Text>
+        <View style={styles.lowerContainer}>
+          <View >
+            <Text testID="stargazersCount" fontWeight='bold' fontSize='subheading'>{formProperNumber(item.stargazersCount)}</Text>
+            <Text fontSize='subheading'>Stars</Text>
           </View>
-
-          <View style={styles.description}>
-            <Text fontSize='body' >{item.description}</Text>
+          
+          <View >
+            <Text testID="forksCount" fontWeight='bold' fontSize='subheading'>{formProperNumber(item.forksCount)}</Text>
+            <Text fontSize='subheading'>Forks</Text>
           </View>
-
-          <View style={styles.languageTag}>
-            <Text fontSize='body' color='textWhite'>{item.language}</Text>
+          
+          <View>
+            <Text testID="reviewCount" fontWeight='bold' fontSize='subheading'>{formProperNumber(item.reviewCount)}</Text>
+            <Text fontSize='subheading'>Reviews</Text>
+          </View>
+          
+          <View>
+            <Text testID="ratingAverage" fontWeight='bold' fontSize='subheading'>{formProperNumber(item.ratingAverage)}</Text>
+            <Text fontSize='subheading'>Rating</Text>
           </View>
         </View>
-
+        </Pressable>
+        {
+          showButton ?
+          <View>
+            <Button
+              onPress={() => handleOpenGithub(item.url)}
+              title='Open in Github'
+              style={styles.githubButton}
+            />
+          </View>
+          :
+          null
+        }
       </View>
-
-      <View style={styles.lowerContainer}>
-        <View >
-          <Text fontWeight='bold' fontSize='subheading'>{formProperNumber(item.stargazersCount)}</Text>
-          <Text fontSize='subheading'>Stars</Text>
-        </View>
-        
-        <View >
-          <Text fontWeight='bold' fontSize='subheading'>{formProperNumber(item.forksCount)}</Text>
-          <Text fontSize='subheading'>Forks</Text>
-        </View>
-        
-        <View>
-          <Text fontWeight='bold' fontSize='subheading'>{formProperNumber(item.reviewCount)}</Text>
-          <Text fontSize='subheading'>Reviews</Text>
-        </View>
-        
-        <View>
-          <Text fontWeight='bold' fontSize='subheading'>{formProperNumber(item.ratingAverage)}</Text>
-          <Text fontSize='subheading'>Rating</Text>
-        </View>
-      </View>
-    </View>
+    
   );
 };
 

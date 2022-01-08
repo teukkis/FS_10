@@ -1,31 +1,38 @@
-import React from 'react';
-import { FlatList, View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import RepositoryListContainer from './RepositoryListContainer'
 import useRepositories from '../hooks/useRepositories';
-import RepositoryItem from './repositoryItem';
-
-const styles = StyleSheet.create({
-  separator: {
-    marginTop: 20,
-    height: 10,
-    backgroundColor: '#bbbbbb'
-  },
-});
-
-const ItemSeparator = () => <View style={styles.separator} />;
+import { useDebounce } from 'use-debounce';
+import { getOrder } from '../helpers/validation'
 
 
 const RepositoryList = () => {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [variables, setVariables] = useState(getOrder());
+  
+  const setValue = (value) => {
+    setVariables( getOrder(value) );
+    setSelectedValue(value);
+  };
 
- const repositoryNodes  = useRepositories();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [value] = useDebounce(searchQuery, 500);
+
+  const { repositories, fetchMore } = useRepositories({ ...variables, searchKeyword: value, first: 6 });
+
+  const onEndReach = () => {
+    fetchMore();
+  };
+
   return (
-
-    <FlatList
-      data={repositoryNodes === 'loading' ? [] : repositoryNodes}
-      ItemSeparatorComponent={ItemSeparator}
-      renderItem={({item}) => <RepositoryItem item={item}/>  }
-      contentContainerStyle={{ paddingBottom: 20 }}
+    <RepositoryListContainer 
+      repositories={repositories} 
+      setSearchQuery={setSearchQuery}
+      searchQuery={searchQuery}
+      selectedValue={selectedValue}
+      setValue={setValue}
+      onEndReach={onEndReach} 
     />
-  );
+  )
 };
 
 export default RepositoryList;
